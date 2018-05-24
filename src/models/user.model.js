@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { hash, compare } = require('bcrypt');
-
+const {sign, verify} = require('../lib/jwt');
 mongoose.Promise = global.Promise;
 const Schema = mongoose.Schema;
 
@@ -17,7 +17,10 @@ class User extends UserModel {
     static async signUp(email, password, name, phone) {
         const encrypted = await hash(password, 8);
         const user = new UserModel({ name, email, password: encrypted, phone });
-        return user.save();
+        await user.save();
+        const userInfo =  user.toObject();
+        delete userInfo.password;
+        return userInfo;
     }
     
     static async signIn(email, password) {
@@ -26,6 +29,10 @@ class User extends UserModel {
         const same = await compare(password, user.password)
         .catch( () => { throw new Error('Invalid password.')}); // trường hợp passwprd = undefined throw vào đây
         if (!same) throw new Error('Invalid password.');
+        const userInfo =  user.toObject();
+        const token = await sign({_id: user._id});
+        userInfo.token = token;
+        delete userInfo.password;
         return user;
     }
 }
