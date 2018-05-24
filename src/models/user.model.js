@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { hash, compare } = require('bcrypt');
 const {sign, verify} = require('../lib/jwt');
+const MyError = require('../lib/MyError');
+const {     MISSING_EMAIL, CANNOT_FIND_USER, INVALID_PASSWORD, EMAIL_EXISTED, INVALID_SIGN_UP_INFO} = require('../lib/errorCode');
+
 mongoose.Promise = global.Promise;
 const Schema = mongoose.Schema;
 
@@ -15,9 +18,14 @@ const UserModel = mongoose.model('User', userSchema);
 
 class User extends UserModel {
     static async signUp(email, password, name, phone) {
-        const encrypted = await hash(password, 8);
+        if(typeof password !== 'string') throw new MyError('Password is required', INVALID_PASSWORD, 400);
+        const encrypted = await hash(password, 8)
         const user = new UserModel({ name, email, password: encrypted, phone });
-        await user.save();
+        await user.save()
+        .catch(error => { 
+            if(error.code === 11000) throw new MyError('Email existed', EMAIL_EXISTED,400);
+            throw new MyError('Invalid sign up info.', INVALID_SIGN_UP_INFO,400);
+        });
         const userInfo =  user.toObject();
         delete userInfo.password;
         return userInfo;
@@ -25,15 +33,15 @@ class User extends UserModel {
     
     static async signIn(email, password) {
         const user = await User.findOne({ email });
-        if (!user) throw new Error('Cannot find user.');
+        if (!user) throw new MyError('Cannot find user.',CANNOT_FIND_USER, 404);
         const same = await compare(password, user.password)
-        .catch( () => { throw new Error('Invalid password.')}); // trường hợp passwprd = undefined throw vào đây
-        if (!same) throw new Error('Invalid password.');
+        .catch( () => { throw new MyError('Invalid password.',INVALID_PASSWORD, 400)}); // trường hợp password = undefined throw vào đây
+        if (!same) throw new MyError('Invalid password.',INVALID_PASSWORD, 400);
         const userInfo =  user.toObject();
-        const token = await sign({_id: user._id});
+        const token = await sign({ _id: user._id });
         userInfo.token = token;
         delete userInfo.password;
-        return user;
+        return userInfo;
     }
 }
 

@@ -1,7 +1,7 @@
 const assert = require('assert');
 const User = require('../../src/models/user.model');
 const { compare } = require('bcrypt');
-describe('Test user model', () =>{
+describe('Test user sign up', () =>{
 
     it('Can sign up with full info', async () => {
         await User.signUp('hung1@gmail.com','123','hung','123456789');
@@ -23,6 +23,15 @@ describe('Test user model', () =>{
         }
     });
 
+    it('Cannnot sign up without password', async() => {
+        try {
+            await User.signUp('hung1@gmail.com', undefined ,'hung','12345678');
+            throw new Error('Wrong at sign up without email')
+        } catch (err) {
+            assert.equal(err.message, 'Password is required');
+            assert.equal(err.code, 'INVALID_PASSWORD');
+        }
+    });
    
     it ('Cannot sign up with existed email', async () => {
         await User.signUp('hung2@gmail.com','123','hung2','12345678');
@@ -37,14 +46,16 @@ describe('Test user model', () =>{
 });
 
 describe('Test user model sign in', () =>{
-    it('Can sign in with email and password', async () => {
+
+    beforeEach('Sign up a user for test', async () => {
         await User.signUp('hung3@gmail.com','123','hung1','1234567890');
+    })  ; 
+    it('Can sign in with email and password', async () => {
         const user = await User.signIn('hung3@gmail.com','123');
         assert.equal(user.name, 'hung1');
     });
 
     it('Can sign in with wrong email ', async () => {
-        await User.signUp('hung3@gmail.com','123','hung1','1234567890');
         try {
             await User.signIn('sai@gmail.com','123');
             throw new Error('Wrong at Sign in with wrong email');
@@ -54,9 +65,8 @@ describe('Test user model sign in', () =>{
     });
 
     it('Can sign in with wrong password ', async () => {
-        await User.signUp('hung1@gmail.com','123','hung','123456789');
         try {
-            await User.signIn('hung1@gmail.com','');
+            await User.signIn('hung3@gmail.com','');
             throw new Error('Wrong at Sign in with wrong email');
         } catch (err) {
             assert.equal(err.message,'Invalid password.');
@@ -64,9 +74,8 @@ describe('Test user model sign in', () =>{
     });
 
     it('Can sign in without password ', async () => {
-        await User.signUp('hung1@gmail.com','123','hung','123456789');
         try {
-            await User.signIn('hung1@gmail.com',undefined);
+            await User.signIn('hung3@gmail.com',undefined);
             throw new Error('Wrong at Sign in with wrong email');
         } catch (err) {
             assert.equal(err.message,'Invalid password.');
