@@ -19,7 +19,7 @@ describe('Test user sign up', () =>{
             await User.signUp('','123','hung','12345678');
             throw new Error('Wrong at sign up without  email')
         } catch (err) {
-            assert.equal(err.name, 'ValidationError');
+            assert.equal(err.code, 'INVALID_SIGN_UP_INFO');
         }
     });
 
@@ -39,8 +39,8 @@ describe('Test user sign up', () =>{
             await User.signUp('hung2@gmail.com','123','hung1','123456781');
             throw new Error('Wrong at sign up with existed email');
         } catch (error) {
-            assert.equal(error.name, 'MongoError');
-            assert.equal(error.code, 11000);
+            assert.equal(error.code, 'EMAIL_EXISTED');
+            // assert.equal(error.code, 11000);
         }
     });
 });

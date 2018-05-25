@@ -5,7 +5,7 @@ const User = require('../../src/models/user.model');
 const { compare } = require('bcrypt');
 
 
-describe.only('Test POST /sign in', () =>{
+describe('Test POST /sign in', () =>{
 
     beforeEach('Sign up a user for test', async () => {
         await User.signUp('hung3@gmail.com','123','hung1','1234567890');
