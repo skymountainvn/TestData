@@ -28,7 +28,7 @@ function mustBeUser(req,res,next) {
         req.idUser = obj._id;
         next();
     })
-    .catch( () => res.status(400).send({ success: false, message: " Invalid token"}) );
+    .catch( () => res.status(400).send({ success: false, message: "Invalid token"}) );
 }
 
 app.post('/story', mustBeUser, parser, (req,res) => {
@@ -43,7 +43,7 @@ app.delete('/story/:id',  mustBeUser, (req,res) => {
     Story.removeStory(req.idUser, req.params.id)
     .then(story => res.send({ success: true, story }))
     .catch(error => {
-        res.send({ success: false, code: error.code, message: error.message });
+        res.status(error.statusCode).send({ success: false, code: error.code, message: error.message });
     });
 });
 

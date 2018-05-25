@@ -40,23 +40,61 @@ describe('Test POST /story', () => {
 });
 
 describe.only('Test DELETE /story', () => {
-    beforeEach('create story for test', async() => {
+    let idUser1, idUser2, idStory, token1, token2
+    beforeEach('Create new user for test.', async () => {
+        await User.signUp('a@gmail.com', '123', 'teo', '321');
+        await User.signUp('b@gmail.com', '123', 'ty', '123');
+        const user1 = await User.signIn('a@gmail.com', '123');
+        const user2 = await User.signIn('b@gmail.com', '123');
+        token1 = user1.token;
+        token2 = user2.token;
+        idUser1 = user1._id; 
+        idUser2 = user2._id;
+        const story = await Story.createStory(idUser1, 'abcd');
+        idStory = story._id;
 
     });
 
     it('Can remove story by DELETE', async () => {
-
+        const response = await request(app)
+        .delete(`/story/${idStory}`)
+        .set({ token: token1});
+        // console.log(response.body);
+        assert.equal(response.status,200);
+        assert.equal(response.body.success,true);
+        const storyCount = await Story.count({ });
+        assert.equal(storyCount, 0);
+        const user1 = await User.findById(idUser1);
+        assert.equal(user1.stories.length,0);
+        
     });
 
     it('Cannot remove story with wrong storyID', async () => {
-
+        const response = await request(app)
+        .delete(`/story/${idStory}1`)
+        .set({ token: token1});
+        // console.log(response.body);
+        assert.equal(response.body.code,'CANNOT_FIND_STORY' );
+        assert.equal(response.status,404);
     });
 
     it('Cannot remove story with wrong TOKEN', async () => {
+        const response = await request(app)
+        .delete(`/story/${idStory}`)
+        .set({ token: 'abcd'});
+        // console.log(response.body);
+        // assert.equal(response.body.code,'CANNOT_FIND_STORY' );
+        // assert.equal(response.status,404);
+        assert.equal(response.body.success,false );
+        assert.equal(response.body.message,'Invalid token' );
 
     });
 
     it('Cannot remove story with without TOKEN', async () => {
-
+        const response = await request(app)
+        .delete(`/story/${idStory}1`)
+        .set({ token: token2});
+        console.log(response.body);
+        assert.equal(response.body.code,'CANNOT_FIND_STORY' );
     });
 });
