@@ -3,7 +3,8 @@ const app = express();
 const User = require('./models/user.model');
 // const parser = require('body-parser').urlencoded({extended: false});
 const parser = require('body-parser').json();
-const { sign, verify} = requie('./lib/jwt.js');
+const { sign, verify} = require('./lib/jwt.js');
+const Story = require('./models/story.model');
 
 app.post('/signup',parser, (req,res) => {
     const { email, password, name, phone} = req.body;
@@ -30,12 +31,20 @@ function mustBeUser(req,res,next) {
     .catch( () => res.status(400).send({ success: false, message: " Invalid token"}) );
 }
 
-app.post('/story', mustBeUser, (req,res) => {
-
+app.post('/story', mustBeUser, parser, (req,res) => {
+    Story.createStory(req.idUser, req.body.content)
+    .then(story => res.send({ success: true, story }))
+    .catch(error => {
+        res.send({ success: false, code: error.code, message: error.message });
+    });
 });
 
-app.delete('/story/id',  mustBeUser, (req,res) => {
-
+app.delete('/story/:id',  mustBeUser, (req,res) => {
+    Story.removeStory(req.idUser, req.params.id)
+    .then(story => res.send({ success: true, story }))
+    .catch(error => {
+        res.send({ success: false, code: error.code, message: error.message });
+    });
 });
 
 module.exports = app;

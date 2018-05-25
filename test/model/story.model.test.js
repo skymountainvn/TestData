@@ -52,7 +52,7 @@ describe('Create story for user', () => {
        }
     });
 });
-describe.only('Remove Story', () => {
+describe('Remove Story', () => {
     let idUser1, idUser2, idStory;
     beforeEach('Create new user for test.', async () => {
         const user1 = await User.signUp('a@gmail.com', '123', 'teo', '321');
