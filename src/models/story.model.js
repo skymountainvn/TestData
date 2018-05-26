@@ -26,6 +26,14 @@ class Story extends StoryModel {
         await User.findByIdAndUpdate(idUser, { $pull: {stories: story._id} })
         return story;
     }
+
+    static async updateStory(idUser, idStory,content) {
+        const story = await Story.findOneAndUpdate({ _id: idStory, author: idUser}, { content}, {new: true})
+        .catch(errpr => { throw new MyError('Cannot find user.','CANNOT_FIND_STORY',404) });
+        if (!story) throw new MyError('Cannot find user.','CANNOT_FIND_STORY',404);
+        return story;
+    }    
+
 }
 
 

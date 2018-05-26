@@ -22,7 +22,7 @@ app.post('/signin',parser, (req,res) => {
 
 function mustBeUser(req,res,next) {
     const {token} = req.headers;
-    if (!token) return res.status(400).send({ success: false, message: " Invalid token"});
+    if (!token) return res.status(400).send({ success: false, message: "Invalid token"});
     verify(token)
     .then(obj => {
         req.idUser = obj._id;
@@ -41,6 +41,14 @@ app.post('/story', mustBeUser, parser, (req,res) => {
 
 app.delete('/story/:id',  mustBeUser, (req,res) => {
     Story.removeStory(req.idUser, req.params.id)
+    .then(story => res.send({ success: true, story }))
+    .catch(error => {
+        res.status(error.statusCode).send({ success: false, code: error.code, message: error.message });
+    });
+});
+
+app.put('/story/:id',  mustBeUser, parser, (req,res) => {
+    Story.updateStory(req.idUser, req.params.id, req.body.content)
     .then(story => res.send({ success: true, story }))
     .catch(error => {
         res.status(error.statusCode).send({ success: false, code: error.code, message: error.message });

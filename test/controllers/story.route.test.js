@@ -39,7 +39,7 @@ describe('Test POST /story', () => {
     });
 });
 
-describe.only('Test DELETE /story', () => {
+describe('Test DELETE /story', () => {
     let idUser1, idUser2, idStory, token1, token2
     beforeEach('Create new user for test.', async () => {
         await User.signUp('a@gmail.com', '123', 'teo', '321');
@@ -96,5 +96,83 @@ describe.only('Test DELETE /story', () => {
         .set({ token: token2});
         console.log(response.body);
         assert.equal(response.body.code,'CANNOT_FIND_STORY' );
+    });
+});
+
+describe.only('Test PUT /story', () => {
+    let idUser1, idUser2, idStory, token1, token2
+    beforeEach('Create new user for test.', async () => {
+        await User.signUp('a@gmail.com', '123', 'teo', '321');
+        await User.signUp('b@gmail.com', '123', 'ty', '123');
+        const user1 = await User.signIn('a@gmail.com', '123');
+        const user2 = await User.signIn('b@gmail.com', '123');
+        token1 = user1.token;
+        token2 = user2.token;
+        idUser1 = user1._id; 
+        idUser2 = user2._id;
+        const story = await Story.createStory(idUser1, 'abcd');
+        idStory = story._id;
+
+    });
+
+    it('Can update story by PUT', async () => {
+        const response = await request(app)
+        .put(`/story/${idStory}`)
+        .send({ content: 'dcba'})
+        .set({ token: token1});
+        console.log(response.body)
+        assert.equal(response.status, 200);
+        assert.equal(response.body.story.content, 'dcba');
+        const story = await Story.findOne({ });
+        assert.equal(story.content, 'dcba');
+
+    });
+
+    it('Cannot update story with wrong storyID', async () => {
+       const response = await request(app)
+        .put(`/story/${idStory}a`)
+        .send({ content: 'dcba'})
+        .set({ token: token1});
+        console.log(response.body)
+        assert.equal(response.status, 404);
+        assert.equal(response.body.code, 'CANNOT_FIND_STORY');
+        // console.log(response.body.code);
+        const story = await Story.findOne({ });
+        assert.equal(story.content, 'abcd');
+    });
+
+    it('Cannot update story with wrong TOKEN', async () => {
+        const response = await request(app)
+        .put(`/story/${idStory}a`)
+        .send({ content: 'dcba'})
+        .set({ token: token1 + 'x'});
+        assert.equal(response.status, 400);
+        assert.equal(response.body.message, 'Invalid token');
+        // console.log(response.body);
+        const story = await Story.findOne({ });
+        assert.equal(story.content, 'abcd');
+    });
+
+    it('Cannot update story with without TOKEN', async () => {
+        const response = await request(app)
+        .put(`/story/${idStory}a`)
+        .send({ content: 'dcba'})
+        assert.equal(response.status, 400);
+        assert.equal(response.body.message, 'Invalid token');
+        // console.log(response.body);
+        const story = await Story.findOne({ });
+        assert.equal(story.content, 'abcd');
+    });
+
+    it('Cannot update story with without OTHERS', async () => {
+        const response = await request(app)
+        .put(`/story/${idStory}a`)
+        .send({ content: 'dcba'})
+        .set({ token: token2 });
+        assert.equal(response.status, 404);
+        assert.equal(response.body.code, 'CANNOT_FIND_STORY');
+        // console.log(response.body);
+        const story = await Story.findOne({ });
+        assert.equal(story.content, 'abcd');
     });
 });
