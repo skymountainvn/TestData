@@ -13,7 +13,7 @@ describe('Test POST /signup', () => {
             name: 'hung1',
             phone: '123456789'
         };
-        const response = await request(app).post('/signup').send(userInfo);
+        const response = await request(app).post('/user/signup').send(userInfo);
         assert.equal(response.status, 200);
         assert.equal(response.body.success, true);
         assert.equal(response.body.user.name, 'hung1');
@@ -34,7 +34,7 @@ describe('Test POST /signup', () => {
             name: 'hung1',
             phone: '123456789'
         };
-        const response = await request(app).post('/signup').send(userInfo);
+        const response = await request(app).post('/user/signup').send(userInfo);
 
         assert.equal(response.status, 400);
         assert.equal(response.body.success, false);
@@ -48,7 +48,7 @@ describe('Test POST /signup', () => {
             name: 'hung1',
             phone: '123456789'
         };
-        const response = await request(app).post('/signup').send(userInfo);
+        const response = await request(app).post('/user/signup').send(userInfo);
         assert.equal(response.status, 400);
         assert.equal(response.body.success, false);
     });

@@ -13,7 +13,7 @@ describe('Test POST /sign in', () =>{
 
     it('Can sign in with email and password', async () => {
         const userInfo = {email: 'hung3@gmail.com', password: '123'};
-        const reponse = await request(app).post('/signin').send(userInfo);
+        const reponse = await request(app).post('/user/signin').send(userInfo);
         assert.equal(reponse.status, 200);
         // console.log(reponse.body);
         assert.equal(reponse.body.success, true);
@@ -21,7 +21,7 @@ describe('Test POST /sign in', () =>{
 
     it('Cannot sign in with wrong email ', async () => {
         const userInfo = {email: 'asd@gmail.com', password: '123'};
-        const reponse = await request(app).post('/signin').send(userInfo);
+        const reponse = await request(app).post('/user/signin').send(userInfo);
         assert.equal(reponse.status, 404);
         // console.log(reponse.body);
         assert.equal(reponse.body.success, false);
@@ -30,7 +30,7 @@ describe('Test POST /sign in', () =>{
 
     it('Cannot sign in with wrong password ', async () => {
         const userInfo = {email: 'hung3@gmail.com', password: '321'};
-        const reponse = await request(app).post('/signin').send(userInfo);
+        const reponse = await request(app).post('/user/signin').send(userInfo);
         assert.equal(reponse.status, 400);
         // console.log(reponse.body);
         assert.equal(reponse.body.success, false);
@@ -38,7 +38,7 @@ describe('Test POST /sign in', () =>{
 
     it('Cannot sign in without password ', async () => {
         const userInfo = {email: 'hung3@gmail.com'};
-        const reponse = await request(app).post('/signin').send(userInfo);
+        const reponse = await request(app).post('/user/signin').send(userInfo);
         assert.equal(reponse.status, 400);
         // console.log(reponse.body);
         assert.equal(reponse.body.success, false);
@@ -46,7 +46,7 @@ describe('Test POST /sign in', () =>{
 
     it('Cannot sign in without email ', async () => {
         const userInfo = {};
-        const reponse = await request(app).post('/signin').send(userInfo);
+        const reponse = await request(app).post('/user/signin').send(userInfo);
         assert.equal(reponse.status, 404);
         // console.log(reponse.body);
         assert.equal(reponse.body.success, false);

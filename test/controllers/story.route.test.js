@@ -19,7 +19,7 @@ describe('Test POST /story', () => {
         .post('/story')
         .send({ content: 'abcd'})
         .set({ token });
-        console.log(response.body);
+        // console.log(response.body);
         assert.equal(response.status, 200);
         assert.equal(response.body.success, true);
         assert.equal(response.body.story.content,'abcd');
@@ -33,7 +33,7 @@ describe('Test POST /story', () => {
         const response = await request(app)
         .post('/story')
         .send({ content: 'abcd'})
-        console.log(response.body);
+        // console.log(response.text);
         assert.equal(response.status, 400);
         assert.equal(response.body.success, false);
     });
@@ -99,7 +99,7 @@ describe('Test DELETE /story', () => {
     });
 });
 
-describe.only('Test PUT /story', () => {
+describe('Test PUT /story', () => {
     let idUser1, idUser2, idStory, token1, token2
     beforeEach('Create new user for test.', async () => {
         await User.signUp('a@gmail.com', '123', 'teo', '321');
@@ -120,7 +120,7 @@ describe.only('Test PUT /story', () => {
         .put(`/story/${idStory}`)
         .send({ content: 'dcba'})
         .set({ token: token1});
-        console.log(response.body)
+        // console.log(response.body)
         assert.equal(response.status, 200);
         assert.equal(response.body.story.content, 'dcba');
         const story = await Story.findOne({ });
@@ -133,7 +133,7 @@ describe.only('Test PUT /story', () => {
         .put(`/story/${idStory}a`)
         .send({ content: 'dcba'})
         .set({ token: token1});
-        console.log(response.body)
+        // console.log(response.body)
         assert.equal(response.status, 404);
         assert.equal(response.body.code, 'CANNOT_FIND_STORY');
         // console.log(response.body.code);
